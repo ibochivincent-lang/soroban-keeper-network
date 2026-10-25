@@ -42,6 +42,15 @@ jobs:
           ref: ${{ github.event.inputs.tag || github.ref }}
           fetch-depth: 0
 
+      # The release body is the CHANGELOG section for this version. Extract it
+      # before building so a tag without a section fails in seconds, not after
+      # the WASM build, and nothing is published.
+      - name: Extract release notes from CHANGELOG.md
+        env:
+          TAG: ${{ github.event.inputs.tag || github.ref_name }}
+        run: scripts/extract-changelog-section.sh "$TAG" CHANGELOG.md > RELEASE_NOTES.md
+
+      - name: Install Rust
       - name: Install Rust (from rust-toolchain.toml)
         uses: dtolnay/rust-toolchain@stable
 
